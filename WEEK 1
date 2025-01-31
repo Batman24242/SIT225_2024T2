@@ -1,0 +1,45 @@
+// python code:
+
+import serial
+import random
+import time
+
+boud_rate = 9600
+s = serial.Serial('/dev/cu.usbmodem13101', boud_rate, timeout=5)
+
+time.sleep(2)  
+
+while True:
+    random_blink = random.randint(1, 2)
+    s.write(bytes(str(random_blink) + '\n', 'utf-8'))  
+    print(f"sent >>> {random_blink} blinks")
+    time.sleep(0.5)
+
+    reply = s.readline().decode('utf-8').strip()
+    if reply.isdigit():
+        delay = int(reply)
+        print(f"received <<< {delay} seconds")
+        print(f"sleep for {delay} seconds")
+        time.sleep(delay)
+
+//********************************************************************************************************************************************************************************
+// arduino code:
+
+void setup() {
+  Serial.begin(9600);  
+  pinMode(LED_BUILTIN, OUTPUT);  
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    int blinkCount = Serial.parseInt();  
+    for (int i = 0; i < blinkCount; i++) {
+      digitalWrite(LED_BUILTIN, HIGH); 
+      delay(1000);  
+      digitalWrite(LED_BUILTIN, LOW);  
+      delay(1000);  
+    }
+    int randomResponse = random(1, 10);  
+    Serial.println(randomResponse);  
+  }
+}
